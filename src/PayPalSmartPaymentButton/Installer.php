@@ -15,6 +15,7 @@ use Pimcore\Bundle\EcommerceFrameworkBundle\Tools\PaymentProviderInstaller;
 
 class Installer extends PaymentProviderInstaller
 {
+    protected $bricksPath = __DIR__ . '/../../install/objectbrick_sources/';
 
     protected $bricksToInstall = [
         'PaymentProviderPayPal' => 'objectbrick_PaymentProviderPayPalSmartButton_export.json'
