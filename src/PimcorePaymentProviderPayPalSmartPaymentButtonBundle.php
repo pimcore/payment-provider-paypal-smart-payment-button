@@ -11,13 +11,9 @@
  */
 namespace Pimcore\Bundle\EcommerceFrameworkBundle;
 
-
 use Pimcore\Bundle\EcommerceFrameworkBundle\PayPalSmartPaymentButton\Installer;
 use Pimcore\Extension\Bundle\AbstractPimcoreBundle;
 use Pimcore\Extension\Bundle\Traits\PackageVersionTrait;
-use Pimcore\HttpKernel\Bundle\DependentBundleInterface;
-use Pimcore\HttpKernel\BundleCollection\BundleCollection;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class PimcorePaymentProviderPayPalSmartPaymentButtonBundle extends AbstractPimcoreBundle
 {
