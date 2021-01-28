@@ -1,22 +1,35 @@
-# Pimcore E-Commerce Framework Payment Provider - PayPal
+# Pimcore E-Commerce Framework Payment Provider - PayPal Smart Payment Buttons
 
-## Integration of PayPal Smart Payment Button
+## Installation
 
-The `PayPalSmartPaymentButton` provides an integration with the PayPal Smart Payment Buttons.  
+Install latest version with Composer:
+```bash 
+composer require pimcore/payment-provider-paypal-smart-payment-button
+```
 
-### Integration Steps
+Enable bundle via console or extensions manager in Pimcore backend:
+```bash
+php bin/console pimcore:bundle:enable PimcorePaymentProviderPayPalSmartPaymentButtonBundle
+php bin/console pimcore:bundle:install PimcorePaymentProviderPayPalSmartPaymentButtonBundle
+```
 
-1) Update your `composer.json`
+For configuration details see further below. For additional information of PayPal API 
+credentials see [API Docs](https://developer.paypal.com/docs/api/overview/) 
 
-Add `paypal/paypal-checkout-sdk:^1` to your `composer.json`. 
+## Configuration
+The Payment Manager is responsible for implementation
+of different Payment Provider to integrate them into the framework. 
 
-2) Setup API credentials and Pimcore E-Commerce Framework Configuration
+For more information about Payment Manager, see 
+[Payment Manager Docs](../13_Checkout_Manager/07_Integrating_Payment.md). 
 
-Setup payment provider in e-commerce framework configuration tree and add PayPal API 
-credentials to it: 
-```yml
-    payment_manager.
-        providers: 
+Configure payment provider in the `pimcore_ecommerce_config.payment_manager` config section: 
+```yaml
+pimcore_ecommerce_config:
+    payment_manager:
+        payment_manager_id: Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\PaymentManager
+
+        providers:
             paypal:
                 provider_id: Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment\PayPalSmartPaymentButton
                 profile: sandbox
@@ -24,13 +37,29 @@ credentials to it:
                     sandbox:
                         client_id: <YOUR PAYPAL REST API CLIENT ID>
                         client_secret: <YOUR PAYPAL REST API CLIENT SECRET>
+                        
+                        # defines, if payment caputure should take place automatic or manual, default is automatic
+                        capture_strategy: automatic   
+                        
+                        # defines mode of PayPal API, default value is sandbox  
+                        mode: sandbox                 
+                        
+                        # defines PayPal application context for shipping, default value is NO_SHIPPING
+                        # see https://developer.paypal.com/docs/api/orders/v2/#definition-application_context 
+                        shipping_preference: NO_SHIPPING
+
+                        # defines PayPal application context for user action, default value is PAY_NOW
+                        # see https://developer.paypal.com/docs/api/orders/v2/#definition-application_context                        
+                        user_action: PAY_NOW
+
+                    live:
+                        client_id: <YOUR PAYPAL REST API CLIENT ID>
+                        client_secret: <YOUR PAYPAL REST API CLIENT SECRET>
+                        mode: live
 ```
 
-For configuration details see further below. For additional information of PayPal API 
-credentials see [API Docs](https://developer.paypal.com/docs/api/overview/) 
-
-
-3) Integrate the PayPal payment button to your view template
+## Implementation
+Integrate the PayPal payment button to your view template
 
 Integrate PayPal payment button and overwrite a few methods like in the sample. At least
 `createOrder` and `onApprove` need to be overwritten.  
@@ -162,49 +191,6 @@ public function handleResponseAction() {
     
 } 
 ```
-
-6) (Optional) Add `PaymentProviderPayPalSmartButton` ObjectBrick
-If you are updating an existing Pimcore instance (with originated before 6.0.1), you might need to add the 
-`PaymentProviderPayPalSmartButton` to your installation. It can be imported from 
-[this json export file](https://github.com/pimcore/pimcore/tree/master/bundles/EcommerceFrameworkBundle/Resources/install/objectbrick_sources/objectbrick_PaymentProviderPayPalSmartButton_export.json). 
-
-
-### Configuration Options
-In payment configuration, following options are available: 
-
-```yml
-    payment_manager.
-        providers: 
-            paypal:
-                provider_id: Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment\PayPalSmartPaymentButton
-                profile: sandbox
-                profiles:
-                    sandbox:
-                        client_id: <YOUR PAYPAL REST API CLIENT ID>
-                        client_secret: <YOUR PAYPAL REST API CLIENT SECRET>
-                        
-                        # defines, if payment caputure should take place automatic or manual, default is automatic
-                        capture_strategy: automatic   
-                        
-                        # defines mode of PayPal API, default value is sandbox  
-                        mode: sandbox                 
-                        
-                        # defines PayPal application context for shipping, default value is NO_SHIPPING
-                        # see https://developer.paypal.com/docs/api/orders/v2/#definition-application_context 
-                        shipping_preference: NO_SHIPPING
-
-                        # defines PayPal application context for user action, default value is PAY_NOW
-                        # see https://developer.paypal.com/docs/api/orders/v2/#definition-application_context                        
-                        user_action: PAY_NOW
-
-                    live:
-                        client_id: <YOUR PAYPAL REST API CLIENT ID>
-                        client_secret: <YOUR PAYPAL REST API CLIENT SECRET>
-                        mode: live
-
-```
-
-
 
 ### Further Information
 
