@@ -141,8 +141,14 @@ public function startPaymentAction() {
     
     // ... some other stuff
     
+        
+        $paymentConfig = new AbstractRequest($config);
+        
+        $response = $checkoutManager->startOrderPaymentWithPaymentProvider($paymentConfig);
+    
+    
     $checkoutManager = Factory::getInstance()->getCheckoutManager($cart);
-    $paymentInformation = $checkoutManager->startOrderPayment();
+    $paymentInformation = $checkoutManager->initOrderPayment();
     $payment = $checkoutManager->getPayment();
     
     $config = [
@@ -152,8 +158,10 @@ public function startPaymentAction() {
         'InternalPaymentId' => $paymentInformation->getInternalPaymentId()
     ];
     
-    $response = $payment->initPayment($cart->getPriceCalculator()->getGrandTotal(), $config);
-    return new \Symfony\Component\HttpFoundation\JsonResponse($response);
+    $paymentConfig = new AbstractRequest($config);
+    
+    $response = $checkoutManager->startOrderPaymentWithPaymentProvider($paymentConfig);
+    return new \Symfony\Component\HttpFoundation\JsonResponse($response->getJsonString(), 200, [], true);
 
 } 
 
