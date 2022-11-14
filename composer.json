@@ -8,7 +8,7 @@
   },
   "require": {
     "paypal/paypal-checkout-sdk": "^1",
-    "pimcore/pimcore": "^10.0.0"
+    "pimcore/pimcore": "^10.5 || ^ 11"
   },
   "autoload": {
     "psr-4": {
