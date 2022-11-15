@@ -21,11 +21,11 @@ The Payment Manager is responsible for implementation
 of different Payment Provider to integrate them into the framework. 
 
 For more information about Payment Manager, see 
-[Payment Manager Docs](../13_Checkout_Manager/07_Integrating_Payment.md). 
+[Payment Manager Docs](https://github.com/pimcore/pimcore/blob/master/doc/Development_Documentation/10_E-Commerce_Framework/13_Checkout_Manager/07_Integrating_Payment.md). 
 
 Configure payment provider in the `pimcore_ecommerce_config.payment_manager` config section: 
 ```yaml
-pimcore_ecommerce_config:
+pimcore_ecommerce_framework:
     payment_manager:
         payment_manager_id: Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\PaymentManager
 
