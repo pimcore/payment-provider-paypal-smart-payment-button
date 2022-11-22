@@ -31,7 +31,7 @@ class PimcorePaymentProviderPayPalSmartPaymentButtonBundle extends AbstractPimco
         return 'pimcore/payment-provider-paypal-smart-payment-button';
     }
 
-    public function getInstaller()
+    public function getInstaller(): Installer
     {
         return $this->container->get(Installer::class);
     }
