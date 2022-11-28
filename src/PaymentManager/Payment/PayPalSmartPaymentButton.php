@@ -94,7 +94,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'PayPalSmartButton';
     }
@@ -189,7 +189,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @return StatusInterface
      */
-    public function handleResponse($response)
+    public function handleResponse(StatusInterface $response): StatusInterface
     {
         // check required fields
         $required = [
@@ -251,7 +251,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @return array
      */
-    public function getAuthorizedData()
+    public function getAuthorizedData(): array
     {
         return $this->authorizedData;
     }
@@ -274,7 +274,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @return StatusInterface
      */
-    public function executeDebit(PriceInterface $price = null, $reference = null)
+    public function executeDebit(?PriceInterface $price = null, ?string $reference = null): StatusInterface
     {
         if (null !== $price) {
             throw new \Exception('Setting other price than defined in Order not supported by paypal api');
@@ -303,7 +303,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @return StatusInterface
      */
-    public function executeCredit(PriceInterface $price, $reference, $transactionId)
+    public function executeCredit(PriceInterface $price, string $reference, string $transactionId): StatusInterface
     {
         throw new \Exception('not implemented');
     }
