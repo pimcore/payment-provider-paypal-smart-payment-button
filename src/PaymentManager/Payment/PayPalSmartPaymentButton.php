@@ -220,6 +220,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         // handle
         $authorizedData = array_intersect_key($response, $authorizedData);
+        /** @var object $statusResponse->result */
         $authorizedData['email_address'] = $statusResponse->result->payer->email_address;
         $authorizedData['given_name'] = $statusResponse->result->payer->name->given_name;
         $authorizedData['surname'] = $statusResponse->result->payer->name->surname;
@@ -283,6 +284,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $orderId = $this->getAuthorizedData()['orderID'];
         $statusResponse = $this->payPalHttpClient->execute(new OrdersCaptureRequest($orderId));
 
+        /** @var object $statusResponse->result */
         return new Status(
             $statusResponse->result->purchase_units[0]->payments->captures[0]->custom_id,
             $orderId,
