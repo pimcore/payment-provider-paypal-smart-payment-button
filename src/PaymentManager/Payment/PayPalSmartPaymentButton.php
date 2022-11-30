@@ -185,7 +185,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * Handles response of payment provider and creates payment status object
      *
-     * @param StatusInterface $response
+     * @param StatusInterface|array $response
      *
      * @return StatusInterface
      */
