@@ -189,7 +189,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @return StatusInterface
      */
-    public function handleResponse(StatusInterface|array $response): StatusInterface
+    public function handleResponse(StatusInterface | array $response): StatusInterface
     {
         // check required fields
         $required = [
