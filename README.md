@@ -129,7 +129,7 @@ Integrate PayPal payment button and overwrite a few methods like in the sample. 
 
 4) Create a startPaymentAction in your controller
 
-Initialize checkout manager, call `startOrderPayment` and then `initPayment` of the payment 
+Initialize checkout manager, call `startOrderPaymentWithPaymentProvider` of the payment 
 implementation. It is creating an order at PayPal and its response is the default PayPal 
 response, which need to be returned as a json response of the action.  
 
