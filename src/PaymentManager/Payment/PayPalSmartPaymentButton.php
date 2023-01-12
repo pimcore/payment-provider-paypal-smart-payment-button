@@ -15,12 +15,8 @@
 
 namespace Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment;
 
-use PayPalCheckoutSdk\Core\PayPalHttpClient;
-use PayPalCheckoutSdk\Core\ProductionEnvironment;
-use PayPalCheckoutSdk\Core\SandboxEnvironment;
-use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
-use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
-use PayPalCheckoutSdk\Orders\OrdersGetRequest;
+use GuzzleHttp;
+use GuzzleHttp\Utils;
 use Pimcore\Bundle\EcommerceFrameworkBundle\EnvironmentInterface;
 use Pimcore\Bundle\EcommerceFrameworkBundle\Exception\InvalidConfigException;
 use Pimcore\Bundle\EcommerceFrameworkBundle\Model\Currency;
@@ -32,6 +28,7 @@ use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPayme
 use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\JsonResponse;
 use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\StartPaymentResponseInterface;
 use Pimcore\Bundle\EcommerceFrameworkBundle\PriceSystem\PriceInterface;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterface
@@ -39,8 +36,10 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     const CAPTURE_STRATEGY_MANUAL = 'manual';
     const CAPTURE_STRATEGY_AUTOMATIC = 'automatic';
 
+    const API_SANDBOX_BASE = 'api-m.sandbox.paypal.com';
+    const API_LIVE_BASE = 'api.paypal.com';
     /**
-     * @var PayPalHttpClient
+     * @var GuzzleHttp\Client
      */
     protected $payPalHttpClient;
 
@@ -48,6 +47,9 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      * @var string
      */
     protected $clientId;
+    private string $clientSecret;
+
+    protected string $accessToken;
 
     /**
      * @var array
@@ -65,6 +67,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     protected $environment;
 
     protected $authorizedData;
+
 
     public function __construct(array $options, EnvironmentInterface $environment)
     {
@@ -124,13 +127,10 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
             throw new \Exception(sprintf('required fields are missing! required: %s', implode(', ', array_keys(array_diff_key($required, $config)))));
         }
 
-        $request = new OrdersCreateRequest();
-        $request->prefer('return=representation');
-        $request->body = $this->buildRequestBody($price, $config);
+        $body = $this->buildRequestBody($price, $config);
 
-        $response = $this->payPalHttpClient->execute($request);
-
-        return $response->result;
+        $response = $this->postOrderCreateRequest($body);
+        return $response->getBody()->getContents();
     }
 
     protected function buildRequestBody(PriceInterface $price, array $config)
@@ -212,14 +212,14 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         $orderId = $response['orderID'];
 
-        $statusResponse = $this->payPalHttpClient->execute(new OrdersGetRequest($orderId));
+        $getOrder = $this->getOrderRequest($orderId);
+        $statusResponse = Utils::jsonDecode($getOrder->getBody());
 
         // handle
         $authorizedData = array_intersect_key($response, $authorizedData);
-        /** @var object $statusResponse->result */
-        $authorizedData['email_address'] = $statusResponse->result->payer->email_address;
-        $authorizedData['given_name'] = $statusResponse->result->payer->name->given_name;
-        $authorizedData['surname'] = $statusResponse->result->payer->name->surname;
+        $authorizedData['email_address'] = $statusResponse->payer->email_address;
+        $authorizedData['given_name'] = $statusResponse->payer->name->given_name;
+        $authorizedData['surname'] = $statusResponse->payer->name->surname;
         $this->setAuthorizedData($authorizedData);
 
         switch ($this->captureStrategy) {
@@ -227,10 +227,10 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
             case self::CAPTURE_STRATEGY_MANUAL:
 
                 return new Status(
-                    $statusResponse->result->purchase_units[0]->custom_id,
+                    $statusResponse->purchase_units[0]->custom_id,
                     $response['orderID'],
                     '',
-                    $statusResponse->result->status == 'APPROVED' ? StatusInterface::STATUS_AUTHORIZED : StatusInterface::STATUS_CANCELLED,
+                    $statusResponse->status == 'APPROVED' ? StatusInterface::STATUS_AUTHORIZED : StatusInterface::STATUS_CANCELLED,
                     [
                     ]
                 );
@@ -278,16 +278,17 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         }
 
         $orderId = $this->getAuthorizedData()['orderID'];
-        $statusResponse = $this->payPalHttpClient->execute(new OrdersCaptureRequest($orderId));
+        $orderCapture = $this->postOrderCaptureRequest($orderId);
 
-        /** @var object $statusResponse->result */
+        $statusResponse = Utils::jsonDecode($orderCapture->getBody());
+
         return new Status(
-            $statusResponse->result->purchase_units[0]->payments->captures[0]->custom_id,
+            $statusResponse->purchase_units[0]->payments->captures[0]->custom_id,
             $orderId,
             '',
-            $statusResponse->result->status == 'COMPLETED' ? StatusInterface::STATUS_CLEARED : StatusInterface::STATUS_CANCELLED,
+            $statusResponse->status == 'COMPLETED' ? StatusInterface::STATUS_CLEARED : StatusInterface::STATUS_CANCELLED,
             [
-                'transactionId' => $statusResponse->result->purchase_units[0]->payments->captures[0]->id,
+                'transactionId' => $statusResponse->purchase_units[0]->payments->captures[0]->id,
             ]
         );
     }
@@ -343,16 +344,16 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     protected function processOptions(array $options)
     {
         parent::processOptions($options);
-
-        $this->payPalHttpClient = $this->buildPayPalClient($options['client_id'], $options['client_secret'], $options['mode']);
         $this->clientId = $options['client_id'];
-
+        $this->clientSecret = $options['client_secret'];
         $this->applicationContext = [
             'shipping_preference' => $options['shipping_preference'],
             'user_action' => $options['user_action'],
         ];
-
         $this->captureStrategy = $options['capture_strategy'];
+
+        $this->accessToken = $this->getAccessToken($options['mode']);
+        $this->payPalHttpClient = $this->buildPayPalClient($options['mode']);
     }
 
     /**
@@ -360,17 +361,74 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      * @param string $clientSecret
      * @param string $mode
      *
-     * @return PayPalHttpClient
+     * @return GuzzleHttp\Client
      */
-    protected function buildPayPalClient(string $clientId, string $clientSecret, string $mode = 'sandbox')
+    protected function buildPayPalClient(string $mode = 'sandbox'): GuzzleHttp\Client
     {
-        if ($mode == 'production') {
-            $environment = new ProductionEnvironment($clientId, $clientSecret);
-        } else {
-            $environment = new SandboxEnvironment($clientId, $clientSecret);
+        $apiBaseUrl = self::API_LIVE_BASE;
+        if ($mode === 'sandbox'){
+            $apiBaseUrl = self::API_SANDBOX_BASE;
         }
 
-        return new PayPalHttpClient($environment);
+        return new GuzzleHttp\Client([
+            'base_uri' => 'https://'.$apiBaseUrl,
+            'headers' => [
+                'Authorization' => 'Bearer '.$this->accessToken,
+                'Content-type' => 'application/json'
+            ]
+        ]);
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    protected function getAccessToken(string $mode = 'sandbox'): string
+    {
+        $apiBaseUrl = self::API_LIVE_BASE;
+        if ($mode === 'sandbox'){
+            $apiBaseUrl = self::API_SANDBOX_BASE;
+        }
+
+        $tokenClient = new GuzzleHttp\Client();
+        $response = $tokenClient->post('https://' . $this->clientId . ':' . $this->clientSecret . '@' . $apiBaseUrl . '/v1/oauth2/token', [
+            'form_params' => [
+                'grant_type' => 'client_credentials',
+            ],
+            'header' => [
+                'content_type' => 'application/x-www-form-urlencoded'
+            ]
+        ]);
+
+        /** @var array $response */
+        $response = Utils::jsonDecode($response->getBody()->getContents(), true);
+
+        if (!isset($response['access_token'])) {
+            throw new \Exception($response['error_description'] . ' check PayPal configuration');
+        }
+
+        return $response['access_token'];
+    }
+
+    protected function getOrderRequest(string $orderId): ResponseInterface
+    {
+        return $this->payPalHttpClient->get('/v2/checkout/orders/' . $orderId . '?');
+    }
+
+    protected function postOrderCreateRequest(array $body): ResponseInterface
+    {
+        return $this->payPalHttpClient->post('/v2/checkout/orders?', [
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'json' => $body
+        ]);
+    }
+
+    protected function postOrderCaptureRequest(string $orderId): ResponseInterface
+    {
+        return $this->payPalHttpClient->post('/v2/checkout/orders/' . $orderId . '/capture?');
     }
 
     /**

@@ -9,7 +9,6 @@
   "prefer-stable": true,
   "minimum-stability": "dev",
   "require": {
-    "paypal/paypal-checkout-sdk": "^1",
     "pimcore/pimcore": "^11.0"
   },
   "require-dev": {
