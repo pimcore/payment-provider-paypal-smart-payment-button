@@ -43,11 +43,8 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      */
     protected $payPalHttpClient;
 
-    /**
-     * @var string
-     */
-    protected $clientId;
-    private string $clientSecret;
+    protected string $clientId;
+    protected string $clientSecret;
 
     protected string $accessToken;
 
