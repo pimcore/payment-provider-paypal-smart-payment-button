@@ -68,7 +68,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     protected $authorizedData;
 
-
     public function __construct(array $options, EnvironmentInterface $environment)
     {
         $this->processOptions(
@@ -130,6 +129,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $body = $this->buildRequestBody($price, $config);
 
         $response = $this->postOrderCreateRequest($body);
+
         return $response->getBody()->getContents();
     }
 
@@ -366,7 +366,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     protected function buildPayPalClient(string $mode = 'sandbox'): GuzzleHttp\Client
     {
         $apiBaseUrl = self::API_LIVE_BASE;
-        if ($mode === 'sandbox'){
+        if ($mode === 'sandbox') {
             $apiBaseUrl = self::API_SANDBOX_BASE;
         }
 
@@ -387,7 +387,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     protected function getAccessToken(string $mode = 'sandbox'): string
     {
         $apiBaseUrl = self::API_LIVE_BASE;
-        if ($mode === 'sandbox'){
+        if ($mode === 'sandbox') {
             $apiBaseUrl = self::API_SANDBOX_BASE;
         }
 
