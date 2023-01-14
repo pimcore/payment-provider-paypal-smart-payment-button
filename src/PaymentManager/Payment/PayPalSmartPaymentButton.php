@@ -221,7 +221,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         $getOrder = $this->payPalHttpClient->get(sprintf(self::GET_ORDER_URL, $orderId));
 
-        /* @var object $statusResponse*/
+        /** @var object $statusResponse */
         $statusResponse = Utils::jsonDecode($getOrder->getBody());
 
         // handle
@@ -289,7 +289,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $orderId = $this->getAuthorizedData()['orderID'];
         $orderCapture = $this->payPalHttpClient->post(sprintf(self::POST_ORDER_CAPTURE_URL, $orderId));
 
-        /* @var object $statusResponse*/
+        /** @var object $statusResponse*/
         $statusResponse = Utils::jsonDecode($orderCapture->getBody());
 
         return new Status(
@@ -367,8 +367,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     }
 
     /**
-     * @param string $clientId
-     * @param string $clientSecret
      * @param string $mode
      *
      * @return GuzzleHttp\Client
