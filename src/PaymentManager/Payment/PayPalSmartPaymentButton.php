@@ -38,6 +38,10 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     const API_SANDBOX_BASE = 'api-m.sandbox.paypal.com';
     const API_LIVE_BASE = 'api.paypal.com';
+
+    const GET_ORDER_URL = '/v2/checkout/orders/%s?';
+    const POST_ORDER_CREATE_URL = '/v2/checkout/orders?';
+    const POST_ORDER_CAPTURE_URL = '/v2/checkout/orders/%s/capture?';
     /**
      * @var GuzzleHttp\Client
      */
@@ -125,7 +129,12 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         $body = $this->buildRequestBody($price, $config);
 
-        $response = $this->postOrderCreateRequest($body);
+        $response = $this->payPalHttpClient->post(self::POST_ORDER_CREATE_URL, [
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'json' => $body
+        ]);
 
         return $response->getBody()->getContents();
     }
@@ -181,6 +190,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     /**
      * Handles response of payment provider and creates payment status object
+     * @throws GuzzleHttp\Exception\GuzzleException
      */
     public function handleResponse(StatusInterface | array $response): StatusInterface
     {
@@ -209,7 +219,9 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         $orderId = $response['orderID'];
 
-        $getOrder = $this->getOrderRequest($orderId);
+        $getOrder = $this->payPalHttpClient->get(sprintf(self::GET_ORDER_URL, $orderId));
+
+        /* @var object $statusResponse*/
         $statusResponse = Utils::jsonDecode($getOrder->getBody());
 
         // handle
@@ -275,8 +287,9 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         }
 
         $orderId = $this->getAuthorizedData()['orderID'];
-        $orderCapture = $this->postOrderCaptureRequest($orderId);
+        $orderCapture = $this->payPalHttpClient->post(sprintf(self::POST_ORDER_CAPTURE_URL, $orderId));
 
+        /* @var object $statusResponse*/
         $statusResponse = Utils::jsonDecode($orderCapture->getBody());
 
         return new Status(
@@ -406,26 +419,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         }
 
         return $response['access_token'];
-    }
-
-    protected function getOrderRequest(string $orderId): ResponseInterface
-    {
-        return $this->payPalHttpClient->get('/v2/checkout/orders/' . $orderId . '?');
-    }
-
-    protected function postOrderCreateRequest(array $body): ResponseInterface
-    {
-        return $this->payPalHttpClient->post('/v2/checkout/orders?', [
-            'headers' => [
-                'Content-Type' => 'application/json'
-            ],
-            'json' => $body
-        ]);
-    }
-
-    protected function postOrderCaptureRequest(string $orderId): ResponseInterface
-    {
-        return $this->payPalHttpClient->post('/v2/checkout/orders/' . $orderId . '/capture?');
     }
 
     /**
