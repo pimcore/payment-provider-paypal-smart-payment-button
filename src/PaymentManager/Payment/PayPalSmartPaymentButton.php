@@ -289,7 +289,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $orderId = $this->getAuthorizedData()['orderID'];
         $orderCapture = $this->payPalHttpClient->post(sprintf(self::POST_ORDER_CAPTURE_URL, $orderId));
 
-        /** @var object $statusResponse*/
+        /** @var object $statusResponse */
         $statusResponse = Utils::jsonDecode($orderCapture->getBody());
 
         return new Status(
