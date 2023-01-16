@@ -28,7 +28,6 @@ use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPayme
 use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\JsonResponse;
 use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\StartPaymentResponseInterface;
 use Pimcore\Bundle\EcommerceFrameworkBundle\PriceSystem\PriceInterface;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterface
@@ -190,6 +189,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     /**
      * Handles response of payment provider and creates payment status object
+     *
      * @throws GuzzleHttp\Exception\GuzzleException
      */
     public function handleResponse(StatusInterface | array $response): StatusInterface
