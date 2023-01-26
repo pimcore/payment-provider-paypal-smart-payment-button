@@ -108,7 +108,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      * @return mixed - either an url for a link the user has to follow to (e.g. paypal) or
      *                 an symfony form builder which needs to submitted (e.g. datatrans and wirecard)
      *
-     * @deprecated since it was removed from Pimcore 10. This method will be renamed in pimcore/payment-provider-paypal-smart-payment-button 2.0, please see PR #16.
+     * @deprecated since it was removed from Pimcore 10. This method will be replaced by "createOrder".
      */
     public function initPayment(PriceInterface $price, array $config)
     {
