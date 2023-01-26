@@ -102,7 +102,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * Creates a new PayPal Order
      */
-    private function createOrder(PriceInterface $price, array $config): mixed
+    public function createOrder(PriceInterface $price, array $config): mixed
     {
         // check params
         $required = [
