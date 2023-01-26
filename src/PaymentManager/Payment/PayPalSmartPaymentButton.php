@@ -38,9 +38,9 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     const API_SANDBOX_BASE = 'api-m.sandbox.paypal.com';
     const API_LIVE_BASE = 'api.paypal.com';
 
-    const GET_ORDER_URL = '/v2/checkout/orders/%s?';
-    const POST_ORDER_CREATE_URL = '/v2/checkout/orders?';
-    const POST_ORDER_CAPTURE_URL = '/v2/checkout/orders/%s/capture?';
+    const GET_ORDER_URL = '/v2/checkout/orders/%s';
+    const POST_ORDER_CREATE_URL = '/v2/checkout/orders';
+    const POST_ORDER_CAPTURE_URL = '/v2/checkout/orders/%s/capture';
     /**
      * @var GuzzleHttp\Client
      */
@@ -219,7 +219,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         $orderId = $response['orderID'];
 
-        $getOrder = $this->payPalHttpClient->get(sprintf(self::GET_ORDER_URL, $orderId));
+        $getOrder = $this->payPalHttpClient->get(sprintf(self::GET_ORDER_URL, urlencode($orderId)));
 
         /** @var object $statusResponse */
         $statusResponse = Utils::jsonDecode($getOrder->getBody());
@@ -287,7 +287,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         }
 
         $orderId = $this->getAuthorizedData()['orderID'];
-        $orderCapture = $this->payPalHttpClient->post(sprintf(self::POST_ORDER_CAPTURE_URL, $orderId));
+        $orderCapture = $this->payPalHttpClient->post(sprintf(self::POST_ORDER_CAPTURE_URL, urlencode($orderId)));
 
         /** @var object $statusResponse */
         $statusResponse = Utils::jsonDecode($orderCapture->getBody());
