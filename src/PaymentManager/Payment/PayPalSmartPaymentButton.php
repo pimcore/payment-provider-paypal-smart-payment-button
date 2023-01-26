@@ -47,7 +47,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     protected $payPalHttpClient;
 
     protected string $clientId;
-    protected string $clientSecret;
 
     protected string $accessToken;
 
@@ -355,14 +354,13 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     {
         parent::processOptions($options);
         $this->clientId = $options['client_id'];
-        $this->clientSecret = $options['client_secret'];
         $this->applicationContext = [
             'shipping_preference' => $options['shipping_preference'],
             'user_action' => $options['user_action'],
         ];
         $this->captureStrategy = $options['capture_strategy'];
 
-        $this->accessToken = $this->getAccessToken($options['mode']);
+        $this->accessToken = $this->getAccessToken($options['client_secret'], $options['mode']);
         $this->payPalHttpClient = $this->buildPayPalClient($options['mode']);
     }
 
@@ -392,7 +390,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @throws \Exception
      */
-    protected function getAccessToken(string $mode = 'sandbox'): string
+    protected function getAccessToken(string $clientSecret, string $mode = 'sandbox'): string
     {
         $apiBaseUrl = self::API_LIVE_BASE;
         if ($mode === 'sandbox') {
@@ -400,7 +398,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         }
 
         $tokenClient = new GuzzleHttp\Client();
-        $response = $tokenClient->post('https://' . $this->clientId . ':' . $this->clientSecret . '@' . $apiBaseUrl . '/v1/oauth2/token', [
+        $response = $tokenClient->post('https://' . $this->clientId . ':' . $clientSecret . '@' . $apiBaseUrl . '/v1/oauth2/token', [
             'form_params' => [
                 'grant_type' => 'client_credentials',
             ],
