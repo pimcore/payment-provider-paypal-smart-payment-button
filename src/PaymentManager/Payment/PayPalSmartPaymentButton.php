@@ -114,6 +114,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     {
         return $this->createOrder($price, $config);
     }
+
     /**
      * Creates a new PayPal Order
      */
