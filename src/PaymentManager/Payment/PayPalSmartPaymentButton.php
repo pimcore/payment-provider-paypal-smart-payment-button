@@ -101,22 +101,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     }
 
     /**
-     * Start payment
-     *
-     * @param PriceInterface $price
-     * @param array $config
-     *
-     * @return mixed - either an url for a link the user has to follow to (e.g. paypal) or
-     *                 an symfony form builder which needs to submitted (e.g. datatrans and wirecard)
-     *
-     * @deprecated since it was removed from Pimcore 10. This method is replaced by "createOrder".
-     */
-    public function initPayment(PriceInterface $price, array $config)
-    {
-        return $this->createOrder($price, $config);
-    }
-
-    /**
      * Creates a new PayPal Order
      */
     public function createOrder(PriceInterface $price, array $config): mixed
@@ -180,7 +164,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      */
     public function startPayment(OrderAgentInterface $orderAgent, PriceInterface $price, AbstractRequest $config): StartPaymentResponseInterface
     {
-        $result = $this->initPayment($price, $config->asArray());
+        $result = $this->createOrder($price, $config->asArray());
 
         if ($result instanceof \stdClass) {
             if ($json = json_encode($result)) {
@@ -193,7 +177,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
             return new JsonResponse($orderAgent->getOrder(), $result);
         }
 
-        throw new \Exception('result of initPayment neither stdClass nor JSON');
+        throw new \Exception('The created order is neither stdClass nor JSON');
     }
 
     /**
