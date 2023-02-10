@@ -9,8 +9,7 @@
   "prefer-stable": true,
   "minimum-stability": "dev",
   "require": {
-    "paypal/paypal-checkout-sdk": "^1",
-    "pimcore/pimcore": "^11.0"
+    "pimcore/pimcore": "11.x-dev as 11.99.9"
   },
   "require-dev": {
     "phpstan/phpstan": "^1.9"
