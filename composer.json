@@ -10,7 +10,7 @@
   "minimum-stability": "dev",
   "require": {
     "pimcore/pimcore": "^11.0.0",
-    "pimcore/ecommerce-framework-bundle": "^1"
+    "pimcore/ecommerce-framework-bundle": "^1.0.0"
   },
   "require-dev": {
     "phpstan/phpstan": "^1.9"
