@@ -22,6 +22,6 @@ class Installer extends PaymentProviderInstaller
     protected string $bricksPath = __DIR__ . '/../../install/objectbrick_sources/';
 
     protected array $bricksToInstall = [
-        'PaymentProviderPayPalSmartButton' => 'objectbrick_PaymentProviderPayPalSmartButton_export.json'
+        'PaymentProviderPayPalSmartButton' => 'objectbrick_PaymentProviderPayPalSmartButton_export.json',
     ];
 }
