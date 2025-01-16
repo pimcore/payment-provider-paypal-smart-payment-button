@@ -416,7 +416,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
      *
      * @return string
      */
-    public function buildPaymentSDKLink(Currency $currency = null)
+    public function buildPaymentSDKLink(?Currency $currency = null)
     {
         if (null === $currency) {
             $currency = $this->getEnvironment()->getDefaultCurrency();
