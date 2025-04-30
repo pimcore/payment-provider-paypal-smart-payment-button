@@ -1,16 +1,13 @@
 <?php
 
 /**
- * Pimcore
- *
- * This source file is available under two different licenses:
- * - GNU General Public License version 3 (GPLv3)
- * - Pimcore Commercial License (PCL)
+ * This source file is available under the terms of the
+ * Pimcore Open Core License (POCL)
  * Full copyright and license information is available in
  * LICENSE.md which is distributed with this source code.
  *
- *  @copyright  Copyright (c) Pimcore GmbH (http://www.pimcore.org)
- *  @license    http://www.pimcore.org/license     GPLv3 and PCL
+ *  @copyright  Copyright (c) Pimcore GmbH (https://www.pimcore.com)
+ *  @license    Pimcore Open Core License (POCL)
  */
 
 namespace Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment;
@@ -33,14 +30,19 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterface
 {
     const CAPTURE_STRATEGY_MANUAL = 'manual';
+
     const CAPTURE_STRATEGY_AUTOMATIC = 'automatic';
 
     const API_SANDBOX_BASE = 'api-m.sandbox.paypal.com';
+
     const API_LIVE_BASE = 'api.paypal.com';
 
     const GET_ORDER_URL = '/v2/checkout/orders/%s';
+
     const POST_ORDER_CREATE_URL = '/v2/checkout/orders';
+
     const POST_ORDER_CAPTURE_URL = '/v2/checkout/orders/%s/capture';
+
     /**
      * @var GuzzleHttp\Client
      */
