@@ -1,6 +1,6 @@
 {
   "name": "pimcore/payment-provider-paypal-smart-payment-button",
-  "license": "Pimcore Open Core License (POCL)",
+  "license": "proprietary",
   "type": "pimcore-bundle",
   "description": "Pimcore Payment Provider - Paypal Smart Payment Button",
   "config": {
