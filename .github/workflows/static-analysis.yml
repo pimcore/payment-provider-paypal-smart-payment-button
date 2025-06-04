@@ -23,7 +23,7 @@ jobs:
         outputs:
             php_versions: ${{ steps.parse-php-versions.outputs.php_versions }}
             matrix: ${{ steps.set-matrix.outputs.matrix }}
-            private_repo: ${{ env.PRIVATE_REPO }}
+            private_repo: true
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
