@@ -15,7 +15,7 @@ on:
 
 env:
     PIMCORE_PROJECT_ROOT: ${{ github.workspace }}
-    PRIVATE_REPO: ${{ github.event.repository.private }}
+    PRIVATE_REPO: true
 
 jobs:
     setup-matrix:
@@ -23,7 +23,7 @@ jobs:
         outputs:
             php_versions: ${{ steps.parse-php-versions.outputs.php_versions }}
             matrix: ${{ steps.set-matrix.outputs.matrix }}
-            private_repo: true
+            private_repo: ${{ env.PRIVATE_REPO }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
