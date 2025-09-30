@@ -19,9 +19,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class PimcorePaymentProviderPayPalSmartPaymentButtonExtension extends Extension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader(

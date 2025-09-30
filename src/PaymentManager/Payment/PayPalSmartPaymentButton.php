@@ -78,25 +78,16 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $this->environment = $environment;
     }
 
-    /**
-     * @return EnvironmentInterface
-     */
     public function getEnvironment(): EnvironmentInterface
     {
         return $this->environment;
     }
 
-    /**
-     * @param EnvironmentInterface $environment
-     */
     public function setEnvironment(EnvironmentInterface $environment): void
     {
         $this->environment = $environment;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return 'PayPalSmartButton';
@@ -125,9 +116,9 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
         $response = $this->payPalHttpClient->post(self::POST_ORDER_CREATE_URL, [
             'headers' => [
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
             ],
-            'json' => $body
+            'json' => $body,
         ]);
 
         return $response->getBody()->getContents();
@@ -161,9 +152,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         return $requestBody;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function startPayment(OrderAgentInterface $orderAgent, PriceInterface $price, AbstractRequest $config): StartPaymentResponseInterface
     {
         $result = $this->createOrder($price, $config->asArray());
@@ -250,7 +238,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * Returns the authorized data from payment provider
      *
-     * @return array
      */
     public function getAuthorizedData(): array
     {
@@ -260,7 +247,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * Set authorized data from payment provider
      *
-     * @param array $authorizedData
      */
     public function setAuthorizedData(array $authorizedData): void
     {
@@ -270,10 +256,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * Executes payment
      *
-     * @param PriceInterface $price
-     * @param string $reference
      *
-     * @return StatusInterface
      */
     public function executeDebit(?PriceInterface $price = null, ?string $reference = null): StatusInterface
     {
@@ -301,11 +284,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     /**
      * Executes credit
      *
-     * @param PriceInterface $price
-     * @param string $reference
-     * @param string $transactionId
      *
-     * @return StatusInterface
      */
     public function executeCredit(PriceInterface $price, string $reference, string $transactionId): StatusInterface
     {
@@ -360,11 +339,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $this->payPalHttpClient = $this->buildPayPalClient($options['mode']);
     }
 
-    /**
-     * @param string $mode
-     *
-     * @return GuzzleHttp\Client
-     */
     protected function buildPayPalClient(string $mode = 'sandbox'): GuzzleHttp\Client
     {
         $apiBaseUrl = self::API_LIVE_BASE;
@@ -376,13 +350,12 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
             'base_uri' => 'https://'.$apiBaseUrl,
             'headers' => [
                 'Authorization' => 'Bearer '.$this->accessToken,
-                'Content-type' => 'application/json'
-            ]
+                'Content-type' => 'application/json',
+            ],
         ]);
     }
 
     /**
-     * @return string
      *
      * @throws \Exception
      */
@@ -399,8 +372,8 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
                 'grant_type' => 'client_credentials',
             ],
             'header' => [
-                'content_type' => 'application/x-www-form-urlencoded'
-            ]
+                'content_type' => 'application/x-www-form-urlencoded',
+            ],
         ]);
 
         /** @var array $response */
@@ -414,7 +387,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     }
 
     /**
-     * @param Currency|null $currency
      *
      * @return string
      */

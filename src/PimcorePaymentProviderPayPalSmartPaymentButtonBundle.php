@@ -20,9 +20,6 @@ class PimcorePaymentProviderPayPalSmartPaymentButtonBundle extends AbstractPimco
 {
     use PackageVersionTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getComposerPackageName(): string
     {
         return 'pimcore/payment-provider-paypal-smart-payment-button';
