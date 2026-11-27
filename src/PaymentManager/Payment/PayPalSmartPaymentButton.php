@@ -16,7 +16,6 @@
 namespace Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment;
 
 use GuzzleHttp;
-use GuzzleHttp\Utils;
 use Pimcore\Bundle\EcommerceFrameworkBundle\EnvironmentInterface;
 use Pimcore\Bundle\EcommerceFrameworkBundle\Exception\InvalidConfigException;
 use Pimcore\Bundle\EcommerceFrameworkBundle\Model\Currency;
@@ -208,7 +207,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $getOrder = $this->payPalHttpClient->get(sprintf(self::GET_ORDER_URL, urlencode($orderId)));
 
         /** @var object $statusResponse */
-        $statusResponse = Utils::jsonDecode($getOrder->getBody());
+        $statusResponse = json_decode((string) $getOrder->getBody(), false, 512, JSON_THROW_ON_ERROR);
 
         // handle
         $authorizedData = array_intersect_key($response, $authorizedData);
@@ -271,7 +270,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $orderCapture = $this->payPalHttpClient->post(sprintf(self::POST_ORDER_CAPTURE_URL, urlencode($orderId)));
 
         /** @var object $statusResponse */
-        $statusResponse = Utils::jsonDecode($orderCapture->getBody());
+        $statusResponse = json_decode((string) $orderCapture->getBody(), false, 512, JSON_THROW_ON_ERROR);
 
         return new Status(
             $statusResponse->purchase_units[0]->payments->captures[0]->custom_id,
@@ -380,7 +379,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         ]);
 
         /** @var array $response */
-        $response = Utils::jsonDecode($response->getBody()->getContents(), true);
+        $response = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         if (!isset($response['access_token'])) {
             throw new \Exception($response['error_description'] . ' check PayPal configuration');
